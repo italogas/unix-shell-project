@@ -68,6 +68,7 @@ if [ ! -f $class_grade ] ; then
 		echo "$sid:$lname:$fname:" >> $class_grade
 	done
 else 
+	echo "" > temp
 	IFS=$'\r\n' GLOBIGNORE='*' :; RECORDS=($(cat $class_grade))
 	echo "${RECORDS[0]}:$title" >> temp 
 	array_size=${#RECORDS[@]}
@@ -77,27 +78,26 @@ else
 		echo "${RECORDS[$i]}:" >> temp 
 		i=$(( $i + 1 ))
 	done;
-	cat temp > $class_grade
+	mv temp $class_grade
 fi
 
 #Process students grades   
 while [ true ] 
 do
-	echo "$ENTRY: (Esc to exit)"
+	echo "$option: (Type ; character to exit)"
 	read entry
 	
-	if [ $entry == "\e" ] ; then
+	if [[ $entry == ";" ]] ; then
 		echo "FINISHING.."
 		break
 	fi
 
 	#Search for student
-	#Something wrong going on here
-	if [ $option == "LNAME" ] ; then
+	if [ $option == "SID" ] ; then
 		awk -v e="$entry" -F: '$1 == e { OFS=";"; print $0, NR }' $class_grade >> output 
-	elif [ $option  == "FNAME" ] ; then
+	elif [ $option  == "LNAME" ] ; then
 		awk -v e="$entry" -F: '$2 == e { OFS=";"; print $0, NR }' $class_grade >> output 
-	elif [ $option  == "SID" ] ; then
+	elif [ $option  == "FNAME" ] ; then
 		awk -v e="$entry" -F: '$3 == e { OFS=";"; print $0, NR }' $class_grade >> output 
 	else
 		echo "ERROR PROCESSING ENTRY... "
@@ -117,20 +117,18 @@ do
 	IFS=$'\r\n' GLOBIGNORE='*' :; RECORDS=($(cat output))
 	for i in ${RECORDS[@]}; do
 
-		echo "" > output
-
 		student=$( echo $i | cut -d";" -f1 )
 		line_number=$( echo $i | cut -d";" -f2 )
 
-		lname=$( echo $student | cut -d":" -f1 )
-		fname=$( echo $student | cut -d":" -f2 )
-		sid=$( echo $student | cut -d":" -f3 )
+		sid=$( echo $student | cut -d":" -f1 )
+		lname=$( echo $student | cut -d":" -f2 )
+		fname=$( echo $student | cut -d":" -f3 )
 
 		echo
 		echo "IT'S $lname, $fname . CORRECT? (Y/N) "
 		read answer
 		if [[ $answer == "Y" || $answer == "y" ]] ; then 
-			echo "THE GRADE OF $option: "
+			echo "THE GRADE OF $lname: "
 			read grade 
 			
 			if [[ $grade =~ "$GRADE_REGEX" ]] ; then 
@@ -139,9 +137,9 @@ do
 			fi
 			
 			#modify data here
-			awk -v l="$line_number" g="$grade" -F: 'if (NR == l) { OFS=":", print $0, g } else { print $0 }' $class_grade >> output 
-			cat output
-			cat output > $class_grades
+			awk -v l="$line_number" -v g="$grade" -F: '{ if (NR == l) { OFS=":"; print $0, g } else { print $0 } }' $class_grade >> output2 
+			#Something wrong going on here
+			mv output2 $class_grade
 		elif [[ $answer == "N" || $answer == "n" ]] ; then 
 				continue
 		else
@@ -149,10 +147,10 @@ do
 		fi
 
 	done;
+	
+	rm output
 
-	echo "" > output
 done
 
-rm output
 echo "EXITING ADDGRADE UTILITY..."
 
