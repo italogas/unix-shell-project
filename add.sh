@@ -6,8 +6,10 @@
 
 # valid number
 RE='^[0-9]+$'
+CLASS_NAME_REGEX="^[a-zA-Z][a-zA-Z][a-zA-Z]*[0-9][0-9][0-9][0-9]*[_][0-9][0-9]$"
 ONE_LINE_INSERTION_FLAG=0
 NUMBEROF_EXECUTIONS=1
+CLASS_FOUND_FLAG=0
 
 # Special function used to sort student list
 sortStudentList() {
@@ -28,8 +30,35 @@ if [ "$#" -gt 3 ] ; then
 	exit 1
 fi
 
+if [ $# == 3 ] ; then
+	class_name=$3
+fi
+if [ $# == 2 ] ; then
+	class_name=$2
+fi
+#Checks if class name is a valid identifier
+if [[ ! "$class_name" =~ $CLASS_NAME_REGEX ]] ; then
+	echo "CLASS NAME NOT VALID. EXITING ADD UTILITY..."
+	exit 1
+fi
+
+#Checks if class exists 
+IFS=$'\r\n' GLOBIGNORE='*' :; CLASSES=($(cat class-list))
+for i in ${CLASSES[@]}; do
+	if [ $i == $class_name ] ; then
+		CLASS_FOUND_FLAG=1
+		break;
+	fi
+done
+
+if [ $CLASS_FOUND_FLAG == 0 ] ; then
+	echo "CLASS NOT FOUND. EXITING ADD  UTILITY..."
+	exit 1
+fi
+
+
 #Checks the argument received
-if [ $# == 1 ] ; then
+if [ $# == 2 ] ; then
 	if [[ "$1" =~ "-1l" ]] ; then
 		ONE_LINE_INSERTION_FLAG=1
 	elif [[ "$1" =~ $RE ]] ; then
@@ -40,7 +69,7 @@ if [ $# == 1 ] ; then
 	fi
 fi
 
-if [ $# == 2 ] ; then
+if [ $# == 3 ] ; then
 	if [ "$1" = "-1l" ] ; then
 		ONE_LINE_INSERTION_FLAG=1
 	else 
@@ -60,7 +89,7 @@ if [ $ONE_LINE_INSERTION_FLAG == 1 ] ; then
 	while [ $j -lt $NUMBEROF_EXECUTIONS ] 
 	do
 		echo "---------------------"
-		echo "ENTER STUDENT $i: "
+		echo "ENTER STUDENT $j: "
 		read new_student
 		echo $new_student >> $class_name
 		j=$(( $j+1 ))
@@ -74,6 +103,7 @@ i=0
 while [ $i -lt $NUMBEROF_EXECUTIONS ]
 do
 	echo "---------------------"
+	echo "ENTER STUDENT $i: "
 	echo "ENTER THE LAST NAME: "
 	read last_name
 	new_student="$last_name"

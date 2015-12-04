@@ -30,7 +30,7 @@ done
 if [ -f "$CURRENT_WORK_DIRECTORY/$class_name" ] ; then
 	echo "CLASS LIST $class_name ALREADY EXISTS. ADD NEW STUDENTS TO $class_name ? (Y/N)"
 	read answer
-	if [ "$answer" = "Y" ] || [ "$answer" = "y" ] ; then
+	if [[ "$answer" == "Y" || "$answer" = "y" ]] ; then
 		echo "STARTING ADD UTILITY... "
 		source "add.sh"		
 		if [ $? != 0 ] ; then
@@ -44,7 +44,7 @@ if [ -f "$CURRENT_WORK_DIRECTORY/$class_name" ] ; then
 else
 	echo "CLASS LIST $class_name DOESN'T EXIST. CREATE NEW CLASS LIST NAMED $class_name ? (Y/N)"
 	read answer
-	if [ "$answer" = "Y" ] || [ "$answer" = "y" ] ; then
+	if [[ "$answer" = "Y" || "$answer" = "y" ]] ; then
 		echo "ADDING $class_name TO CLASS LIST... "
 		touch "$class_name"
 		echo $class_name >> class-list
