@@ -21,19 +21,31 @@ if [ ! -f "$class_grades" ] ; then
 	exit 1
 fi
 
-assignments=( "HW" "EXAM" "QUIZ" "PROJ" )
+HW_REGEX="^hw[0-9]*$"
+EXAM_REGEX=""
+PROJ_REGEX=""
+QUIZ_REGEX=""
+
+assignments=( "h" "e" "q" "p" )
 for i in $assignments; do
 
 	echo "ADDING $i GRADES FOR ALL STUDENTS   ... "
+
+	awk -F: '{ for(i=1; i<=NF; i++) { if ( $NF ~ /^'$i' ) print NF } }' $class_grade > fields
+	
+	awk -F: '$NF ~ /^'$i'/' $class_grade > fields
 
 	IFS=$'\r\n' GLOBIGNORE='*' :; RECORDS=($(echo $class_grades))
 	array_size=${#RECORDS[@]}
 	echo "${RECORDS[0]}:$i" >> output
 	j=1
+
+	awk -v $i -F: '{ { BEGIN counter=0; } if (NF = 0) { print $0, g } } }' $class_grade >> output 
+
 	while [ $j < $array_size ] do
 
 		#add grades here
-		awk -v  -F: '{ { BEGIN counter=0; } if ($NF =~ ) { print $0, g } } }' $class_grade >> output 
+		awk -v $i -F: '{ { BEGIN counter=0; } if (NF = 1) { print $0, g } } }' $class_grade >> output 
 
 	j=$( $j + 1  )
 	done;

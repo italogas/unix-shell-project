@@ -9,6 +9,18 @@ RE='^[0-9]+$'
 ONE_LINE_INSERTION_FLAG=0
 NUMBEROF_EXECUTIONS=1
 
+# Special function used to sort student list
+sortStudentList() {
+	sort -t":" -k1,1 $class_name > temp
+	cat temp > $class_name
+	rm temp
+}
+
+#Checks if new student's key is valid 
+checkNewEntry() {
+	awk -v sid=$1 -F: '{ if ($3 == sid) print $0 }' $class_name > out 
+}
+
 #Check for right number of arguments
 if [ "$#" -gt 3 ] ; then
 	echo "Usage: add [-1l (add in one line) ] [-n (n=number of runs) ]"
@@ -16,7 +28,6 @@ if [ "$#" -gt 3 ] ; then
 	exit 1
 fi
 
-echo $#
 #Checks the argument received
 if [ $# == 1 ] ; then
 	if [[ "$1" =~ "-1l" ]] ; then
@@ -86,18 +97,6 @@ done
 sortStudentList
 
 echo "NO MORE LINES TO INSERT. EXITING ADD UTILITY..."
-
-# Special function used to sort student list
-sortStudentList() {
-	sort -t":" -k1,1 $class_name > temp
-	cat temp > $class_name
-	rm temp
-}
-
-#Checks if new student's key is valid 
-checkNewEntry() {
-	awk -v sid=$1 -F: '{ if ($3 == $sid) print $0 }' $class_name > out 
-}
 
 
 

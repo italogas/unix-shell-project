@@ -25,7 +25,9 @@ do
 	read class_name
 done
 
-if [ $( awk '"$class_name" {print $0}' class-list ) = "$class_name" ] ; then
+# awk '"$class_name" {print $0}' class-list ) == $class_name ] ; then
+
+if [ -f "$CURRENT_WORK_DIRECTORY/$class_name" ] ; then
 	echo "CLASS LIST $class_name ALREADY EXISTS. ADD NEW STUDENTS TO $class_name ? (Y/N)"
 	read answer
 	if [ "$answer" = "Y" ] || [ "$answer" = "y" ] ; then
